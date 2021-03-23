@@ -18,7 +18,7 @@ mars_info = {}
 #def function from first part of HW for Mars News Title and Text
 #MARS NEWS
 
-def srape_mars_news ():
+def scrape_mars_news ():
     #try:
 
     # Initialize browser 
