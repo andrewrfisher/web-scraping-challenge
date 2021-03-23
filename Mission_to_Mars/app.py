@@ -8,12 +8,34 @@ import os
 # Create an instance of Flask app
 app = Flask(__name__)
 
-# Initialize PyMongo to work with MongoDBs
-conn = 'mongodb://localhost:27017'
-client = pymongo.MongoClient(conn)
+#Use flask_pymongo to set up connection through mLab
+#app.config["MONGO_URI"] = os.environ.get('authentication')
+mongo = PyMongo(app, uri="mongodb://localhost:27017/weather_app")
 
-# Define database and collection
-db = client.mars_db
-collection = mars_info.items
+# Create route that shows index.html template and finds documents from mongo
+@app.route("/")
+def home(): 
 
+    # Find data
+    mars_info = mongo.db.mars_info.find_one()
 
+    # Return template and data
+    return render_template("index.html", mars_info=mars_info)
+
+# Route that will trigger scrape function
+@app.route("/scrape")
+def scrape(): 
+
+    # Run scrapped functions
+    mars_info = mongo.db.mars_info
+    mars_data = scrape_mars.scrape_mars_news()
+    mars_data = scrape_mars.scrape_mars_image()
+    mars_data = scrape_mars.scrape_mars_facts()
+    mars_data = scrape_mars.scrape_mars_hemispheres()
+    ##
+    mars_info.update({}, mars_data, upsert=True)
+
+    return redirect("/", code=302)
+
+if __name__ == "__main__": 
+    app.run(debug= True)
